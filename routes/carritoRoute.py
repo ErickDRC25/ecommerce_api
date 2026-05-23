@@ -205,7 +205,7 @@ def actualizar_cantidad(idDetalle:int ,data:CarritoActualizar,user=Depends(obten
         
         return retorno_mssg_accion("Cantidad","actualizada")
 
-@carritorouter.delete("/eliminar/producto/carrito/{idDetalle}",tags=['Admin Carrito'])
+@carritorouter.delete("/eliminar/producto/carrito/{idDetalle}",tags=["Carrito"])
 def eliminar_producto_carrito(idDetalle:int , user=Depends(obtener_usuario_actual)):
     idusuario=int(user['id'])
     with engine.begin() as conn:

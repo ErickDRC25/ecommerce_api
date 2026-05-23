@@ -105,7 +105,7 @@ Authorization: Bearer TOKEN
 ## 1. Clonar repositorio
 
 ```bash
-git clone https://github.com/TU/TU-REPO.git
+git clone https://github.com/ErickDRC25/ecommerce_api.git
 ```
 
 ---

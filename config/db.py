@@ -1,7 +1,12 @@
 from sqlalchemy import create_engine,Table,MetaData
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+DB_URL = os.getenv("DB_URL")
 
 metadata=MetaData()
-engine=create_engine("mysql+pymysql://root:mysqladmin@localhost:3306/db_ecommerce")
+engine = create_engine(DB_URL)
 
 UsuariosTable=Table('usuarios',metadata,autoload_with=engine)
 CarritoTable=Table('carrito',metadata,autoload_with=engine)

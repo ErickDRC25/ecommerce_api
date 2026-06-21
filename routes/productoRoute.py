@@ -49,7 +49,7 @@ def crear_producto(data:ProductoCreate , user=Depends(obtener_usuario_actual)):
         }   
         insertar(conn,ProductosTable,producto_nuevo)
         return retorno_mssg_accion("Producto","creado")
-    
+
 @productoroute.get("/listar/productos",tags=["Producto"])
 def listar_producto():
     with engine.connect() as conn:
@@ -183,4 +183,23 @@ def producto_bajo_stock(user=Depends(obtener_usuario_actual)):
             })
         
         return mostrar
+    
+@productoroute.get("/listar/productos/categorias",tags=["Categoria"])
+def listar_productos_conCategoria():
+    
+    with engine.connect() as conn:
+        join=CategoriasTable.join(ProductosTable,ProductosTable.c.categoria_id==CategoriasTable.c.id)
+        query=select(
+            ProductosTable.c.id,
+            ProductosTable.c.nombre.label("producto"),
+            ProductosTable.c.descripcion,
+            ProductosTable.c.precio,
+            ProductosTable.c.stock,
+            CategoriasTable.c.id.label("categoria_id"),
+            CategoriasTable.c.nombre.label("categoria")
+        ).select_from(join)
+        
+        resultado=conn.execute(query).fetchall()
+        
+        return[ row._asdict() for row in resultado]
     

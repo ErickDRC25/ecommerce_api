@@ -102,6 +102,7 @@ def agregar_carrito(data:Carrito , user=Depends(obtener_usuario_actual)):
             )
             
         query=select(
+                
                 ProductosTable.c.nombre.label("producto"),
                 DetalleCarritoTable.c.cantidad,
                 ProductosTable.c.precio,
@@ -141,6 +142,7 @@ def mi_carrito(user=Depends(obtener_usuario_actual)):
             )
             
         query=select(
+            DetalleCarritoTable.c.id.label("detalle_id"),
             ProductosTable.c.nombre.label("producto"),
             DetalleCarritoTable.c.cantidad,
             ProductosTable.c.precio,
@@ -161,6 +163,7 @@ def mi_carrito(user=Depends(obtener_usuario_actual)):
         for row in resultado:
             subtotal=row.cantidad * row.precio
             productos["Productos"].append({
+                "detalle_id": row.detalle_id,
                 "producto":row.producto,
                 "cantidad":row.cantidad,
                 "subtotal":subtotal

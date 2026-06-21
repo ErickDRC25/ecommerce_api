@@ -5,7 +5,18 @@ from routes.categoriaRoute import categoriaroute
 from routes.productoRoute import productoroute
 from routes.carritoRoute import carritorouter
 from routes.ordenRoute import ordenroute
+from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI()
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 app.include_router(usuariorouter)
 app.include_router(loginroute)

@@ -238,11 +238,15 @@ def producto_mas_vendido(user=Depends(obtener_usuario_actual)):
         if resultado is None:
             raise HTTPException(status_code=404,detail="No existe producto mas vendido")
         
-        
-        return {
-                "Producto_Mas_Vendido": f"producto_id: {resultado.producto_id} - producto: {resultado.producto} - cantidad: {resultado.total_vendido}"
-            }           
-
+        mostrar={
+            "titulo":"Producto mas vendido",
+            "producto_id":resultado.producto_id,
+            "producto": resultado.producto,
+            "cantidad": resultado.total_vendido
+            
+            
+        }
+        return mostrar
 @ordenroute.get("/dashboard/top-clientes",tags=["Dashboard Admin"])
 def top_clientes(user=Depends(obtener_usuario_actual)):
     rolusuario= user['rol']
@@ -264,9 +268,10 @@ def top_clientes(user=Depends(obtener_usuario_actual)):
         for i,row in enumerate(resultado,1):
             
             mostrar["Contenido"].append({
-                f"Top {i}":row.codigo_usuario,
-                "Cliente":row.cliente,
-                "Total_Compras":row.total_compras
+                "top": i,
+                "codigo_cliente": row.codigo_usuario,
+                "cliente": row.cliente,
+                "total_compras": row.total_compras
             })
             
         
@@ -283,7 +288,17 @@ def ventas_x_estados(estado:str,user=Depends(obtener_usuario_actual)):
             no_procesable("Estado invalido - Estados validos : pendiente , pagado , enviado, entregado, cancelado")
             
     with engine.connect() as conn:
-        resultado=conn.execute(OrdenesTable.select().where(OrdenesTable.c.estado==estado)).fetchall()
+        join=OrdenesTable.join(UsuariosTable,OrdenesTable.c.usuario_id == UsuariosTable.c.id)
+        query=select(
+            OrdenesTable.c.id,
+            OrdenesTable.c.usuario_id,
+            UsuariosTable.c.nombre,
+            OrdenesTable.c.total,
+            OrdenesTable.c.fecha,
+            OrdenesTable.c.estado
+        ).select_from(join).where(OrdenesTable.c.estado==estado)
+        resultado = conn.execute(query).fetchall()
+        
         mostrar={
             "Titulo":f"Ordenes en estado: {estado}",
             "Contenido":[]
@@ -294,6 +309,7 @@ def ventas_x_estados(estado:str,user=Depends(obtener_usuario_actual)):
             mostrar["Contenido"].append({
                 "Codigo_orden":row.id,
                 "Codigo_usuario":row.usuario_id,
+                "Usuario":row.nombre,
                 "Total":row.total,
                 "Fecha":row.fecha,
                 "Estado":row.estado
@@ -310,10 +326,17 @@ def ventas_x_fecha(fecha:datetime , user=Depends(obtener_usuario_actual) ):
     inicio_dia=datetime.combine(fecha,time.min)
     fin_dia=datetime.combine(fecha,time.max)
     with engine.connect() as conn:
-        query=OrdenesTable.select().where(
-            OrdenesTable.c.fecha.between(inicio_dia,fin_dia)
-        )
+     
         
+        join=UsuariosTable.join(OrdenesTable, OrdenesTable.c.usuario_id == UsuariosTable.c.id)
+        query= select(
+            OrdenesTable.c.id,
+            OrdenesTable.c.usuario_id,
+            UsuariosTable.c.nombre,
+            OrdenesTable.c.total,
+            OrdenesTable.c.fecha,
+            OrdenesTable.c.estado
+        ).select_from(join).where(OrdenesTable.c.fecha.between(inicio_dia,fin_dia))
         resultado=conn.execute(query).fetchall()
         
         return [row._asdict() for row in resultado]
